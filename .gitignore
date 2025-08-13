@@ -1,0 +1,11 @@
+# Игнорируем зависимости Node.js
+node_modules/
+
+# Игнорируем файлы базы данных SQLite и миграции Drizzle
+*.sqlite
+drizzle/
+drizzle/*.sqlite
+drizzle/*.sqlite-journal
+*.db
+*.log
+CONFIG.json
