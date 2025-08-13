@@ -5,14 +5,12 @@ import bot from '../../../bot'
 import adminMenu from './adminMenu'
 
 export default async (ctx: Context) => {
-  const photoArray = ctx.msg?.photo
   const CHUNK_SIZE = 15
   const REPORT_EVERY = 10
-  const BOT_ADMIN_ID = 8038093257
   const MAX_RETRIES = 3
   const BASE_DELAY = 1000
 
-  // ИСПРАВЛЕНИЕ: Получаем только уникальные ID пользователей
+  // Получаем только уникальные ID пользователей
   const userIds = await User.distinct('id').exec()
 
   if (userIds.length === 0) {
@@ -34,7 +32,7 @@ export default async (ctx: Context) => {
 
   const safeSendToAdmin = async (text: string) => {
     try {
-      await bot.api.sendMessage(BOT_ADMIN_ID, text)
+      await bot.api.sendMessage(ctx.from!.id, text)
     } catch (e) {
       console.error('Не удалось отправить сообщение админу:', e)
     }
@@ -62,7 +60,7 @@ export default async (ctx: Context) => {
     }
   }
 
-  // ИСПРАВЛЕНИЕ: Работаем напрямую с ID вместо объектов пользователей
+  // ИСПРАВЛЕНИЕ: Используем copyMessage для сохранения оригинальной разметки
   const sendChunk = async (
     chunk: number[],
     attempt = 1
@@ -70,23 +68,12 @@ export default async (ctx: Context) => {
     try {
       const results = await Promise.allSettled(
         chunk.map((userId) => {
-          if (photoArray && photoArray.length > 0) {
-            const largestPhoto = photoArray.at(-1)
-            if (!largestPhoto) return Promise.reject('No photo')
-
-            return bot.api.sendPhoto(userId, largestPhoto.file_id, {
-              caption: ctx.msg?.caption,
-              reply_markup: ctx.msg?.reply_markup,
-            })
-          } else {
-            return bot.api.sendMessage(
-              userId,
-              ctx.msg?.text ?? '[пустое сообщение]',
-              {
-                reply_markup: ctx.msg?.reply_markup,
-              }
-            )
-          }
+          // Копируем оригинальное сообщение со всеми его атрибутами
+          return bot.api.copyMessage(
+            ctx.from!.id,
+            ctx.chat!.id,
+            ctx.msg!.message_id
+          )
         })
       )
 
