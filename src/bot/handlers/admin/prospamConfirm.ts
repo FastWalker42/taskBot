@@ -69,11 +69,12 @@ export default async (ctx: Context) => {
       const results = await Promise.allSettled(
         chunk.map((userId) => {
           // Копируем оригинальное сообщение со всеми его атрибутами
-          return bot.api.copyMessage(
+          /*return bot.api.copyMessage(
             ctx.from!.id,
             ctx.chat!.id,
             ctx.msg!.message_id
-          )
+          )*/
+          console.log(userId)
         })
       )
 
