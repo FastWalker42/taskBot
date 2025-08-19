@@ -124,6 +124,23 @@ export const findUserById = async (userId: number) => {
   }
 }
 
+export const getAllUsers = async (): Promise<number[]> => {
+  const users = await User.find({}, { id: 1, _id: 0 }).lean()
+  const uniqueUsersSet = new Set<number>(
+    users.map((u) => Number(u.id))
+  )
+  return Array.from(uniqueUsersSet)
+}
+
+async function getAllUserIds() {
+  const users = await User.find({}, { id: 1, _id: 0 }) // только поле id
+  return users.map((u) => u.id)
+}
+
+export const removeUser = async (id: number) => {
+  await User.deleteOne({ id })
+}
+
 export const activateUser = async (
   userId: number
 ): Promise<boolean> => {
