@@ -36,12 +36,6 @@ export default async (ctx: Context) => {
       console.error('[updateState error]', err)
     }
 
-    if (ctx.msg?.text && ctx.msg.text.startsWith('/start')) {
-      await ctx.replyWithSticker(
-        'CAACAgIAAxkBAAE0X0JoFFrzlOvstGQXm14RrluvNRFWGAACAQEAAladvQoivp8OuMLmNDYE'
-      )
-    }
-
     if (ctx.message?.text === '/start topup') {
       try {
         await ctx.deleteMessage()
