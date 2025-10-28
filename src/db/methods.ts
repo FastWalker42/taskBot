@@ -19,7 +19,6 @@ import {
   TASKS_TO_REFERAL,
   MINING_AMOUNT,
 } from '../../CONFIG.json'
-
 export const fetchUser = async (
   data: UserInput,
   ref?: number | string
@@ -46,15 +45,26 @@ export const fetchUser = async (
 
     // Если не подошло как id, пробуем как payload
     if (invited_by === undefined && typeof ref === 'string') {
-      const adRef = await AdsRef.findOne({ payload: ref })
-      if (adRef) {
-        ad_ref_name = adRef.name
-        ad_ref_payload = adRef.payload
+      let adRef = await AdsRef.findOne({ payload: ref })
+
+      if (!adRef) {
+        // 🔹 Создаём новый AdsRef
+        adRef = new AdsRef({
+          name: `ref-${nanoid(6)}`,
+          payload: ref,
+          visits: 1,
+          unique_visits: user ? 0 : 1,
+        })
+        await adRef.save()
+      } else {
         shouldIncrementVisits = true
         if (!user) {
           shouldIncrementUniqueVisits = true
         }
       }
+
+      ad_ref_name = adRef.name
+      ad_ref_payload = adRef.payload
     }
   }
 
@@ -80,7 +90,6 @@ export const fetchUser = async (
 
   // 👋 Новый пользователь
   if (invited_by !== undefined) {
-    console.log(`New user invited by: ${invited_by}`)
     try {
       await bot.api.sendMessage(
         invited_by,

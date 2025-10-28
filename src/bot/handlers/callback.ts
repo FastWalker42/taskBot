@@ -177,6 +177,7 @@ export default async (ctx: Context) => {
         const { text: parsedText, keyboard } = parseMessageBtns(text)
         await ctx.reply(parsedText, {
           reply_markup: keyboard,
+          link_preview_options: { is_disabled: true },
         })
       } catch (error) {
         console.error('Error showing pokaz:', error)
